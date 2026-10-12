@@ -1,6 +1,6 @@
 // 共用工具：只用 Node 內建模組，不依賴 bash、jq。
 import { execFileSync, spawnSync } from "node:child_process";
-import { accessSync, constants, existsSync, realpathSync } from "node:fs";
+import { accessSync, constants, existsSync, lstatSync, readlinkSync, realpathSync } from "node:fs";
 import { dirname, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -55,23 +55,35 @@ function sameDirectory(a, b) {
 }
 
 /**
- * Resolve symlinks, junctions, and alias spellings of a path that may not exist yet: take the longest
- * existing ancestor, resolve that to its real path (the native spelling on Windows), and append the rest.
+ * Resolve symlinks, junctions, and alias spellings of a path that may not exist yet: walk up with lstat
+ * to the longest existing ancestor, resolve it to its real path (the native spelling on Windows), and
+ * append the rest. A component that is a symlink is followed even when its target does not exist
+ * (a dangling link), because writing through it creates the target: `existsSync` reports such a link as
+ * missing, which would let `leaf -> <protected>/x` pass as a plain new name. Link chains are capped and
+ * a cycle throws, so callers fail closed (the PreToolUse entry points deny on any error).
  */
 export function realpathLoose(path) {
-  let existing = resolve(path);
-  const rest = [];
-  while (!existsSync(existing)) {
-    const parent = dirname(existing);
-    if (parent === existing) return path;
-    rest.unshift(existing.slice(parent.length).replace(/^[\\/]+/, ""));
-    existing = parent;
+  let current = resolve(path);
+  let rest = [];
+  for (let hops = 0; hops < 40; hops += 1) {
+    let stat;
+    try {
+      stat = lstatSync(current);
+    } catch {
+      const parent = dirname(current);
+      if (parent === current) return path;
+      rest.unshift(current.slice(parent.length).replace(/^[\\/]+/, ""));
+      current = parent;
+      continue;
+    }
+    if (stat.isSymbolicLink()) {
+      // Resolve the link target relative to the link's own directory and keep walking from there.
+      current = resolve(dirname(current), readlinkSync(current));
+      continue;
+    }
+    return [realpathSync.native(current), ...rest].join(sep);
   }
-  try {
-    return [realpathSync.native(existing), ...rest].join(sep);
-  } catch {
-    return path;
-  }
+  throw new Error(`symlink chain too long or cyclic: ${path}`);
 }
 
 /** 以 shell 執行一行指令（Windows 上 pnpm 是 .cmd，需要 shell）。stdout 與 stderr 合併收集，同時轉送到 stderr。 */
