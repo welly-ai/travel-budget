@@ -32,6 +32,7 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
+!.env.example
 
 # vercel
 .vercel
@@ -57,3 +58,9 @@ next-env.d.ts
 
 # Claude Code 執行期檔案
 /.claude/scheduled_tasks.lock
+
+# 本機資料庫（示範資料與匯入的真實資料都不進 git）
+/data/
+
+# e2e 測試用的 Next.js 輸出
+/.next-e2e/

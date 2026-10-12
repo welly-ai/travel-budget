@@ -6,7 +6,7 @@ export const DEFAULT_LAYOUT_PATH = "local-data/excel-layout.json";
 export const EXAMPLE_LAYOUT_PATH = "tests/fixtures/synthetic/excel-layout.json";
 
 /** 讀取並驗證版面設定；找不到或不合法時給清楚的錯誤。 */
-export function loadExcelLayout(path: string = resolve(process.cwd(), DEFAULT_LAYOUT_PATH)): ExcelLayout {
+export function loadExcelLayout(path: string = resolve(/*turbopackIgnore: true*/ process.cwd(), DEFAULT_LAYOUT_PATH)): ExcelLayout {
   let text: string;
   try {
     text = readFileSync(path, "utf8");

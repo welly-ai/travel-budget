@@ -18,10 +18,15 @@
     "show-me": "node tools/show-me/server.mjs",
     "show-me:capture": "node tools/show-me/capture.mjs",
     "show-me:feedback": "node tools/show-me/feedback.mjs",
-    "excel:inspect": "tsx scripts/excel-inspect.ts"
+    "excel:inspect": "tsx scripts/excel-inspect.ts",
+    "db:seed": "tsx scripts/db-seed.ts",
+    "db:import-local": "tsx scripts/db-import-local.ts",
+    "test:e2e": "node scripts/e2e.mjs",
+    "mcp:smoke": "node scripts/mcp-smoke.mjs"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.32.1",
+    "@modelcontextprotocol/server": "^2.3.1",
     "better-auth": "^1.7.7",
     "better-sqlite3": "^13.0.3",
     "drizzle-orm": "^0.45.4",

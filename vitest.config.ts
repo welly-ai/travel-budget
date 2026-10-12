@@ -10,6 +10,8 @@ export default defineConfig({
     projects: [
       { extends: true, test: { name: "unit", include: ["src/**/*.test.ts", "tests/unit/**/*.test.ts"] } },
       { extends: true, test: { name: "golden", include: ["tests/golden/**/*.test.ts"] } },
+      // e2e：真的開瀏覽器。用 pnpm test:e2e 跑（會自己起伺服器），不納入 pnpm check。
+      { extends: true, test: { name: "e2e", include: ["tests/e2e/**/*.e2e.ts"], testTimeout: 180_000, hookTimeout: 60_000 } },
     ],
   },
 });

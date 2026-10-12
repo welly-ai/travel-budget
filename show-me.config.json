@@ -2,17 +2,155 @@
   "baseUrl": "http://127.0.0.1:3000",
   "items": [
     {
-      "id": "home",
-      "title": "首頁（桌機）",
-      "description": "範例項目。請改成這次要給使用者看的頁面。",
-      "route": "/",
-      "viewport": { "width": 1280, "height": 800 }
+      "id": "login",
+      "title": "登入頁",
+      "description": "未登入時所有頁面都會導到這裡。",
+      "route": "/login",
+      "viewport": {
+        "width": 1280,
+        "height": 800
+      },
+      "waitFor": "input[name=\"email\"]"
     },
     {
-      "id": "home-mobile",
-      "title": "首頁（手機）",
-      "route": "/",
-      "viewport": { "width": 390, "height": 844 }
+      "id": "projects",
+      "title": "專案列表",
+      "description": "代碼、名稱、LOB、Phase、Class、總人天、最後修改者與時間。",
+      "route": "/projects",
+      "viewport": {
+        "width": 1280,
+        "height": 800
+      },
+      "steps": [
+        {
+          "action": "fill",
+          "selector": "input[name=\"email\"]",
+          "value": "demo@example.com"
+        },
+        {
+          "action": "fill",
+          "selector": "input[name=\"password\"]",
+          "value": "demo-password-123"
+        },
+        {
+          "action": "click",
+          "selector": "button[type=\"submit\"]"
+        },
+        {
+          "action": "wait",
+          "selector": "table tbody tr"
+        }
+      ]
+    },
+    {
+      "id": "project-desktop",
+      "title": "專案頁（桌機）",
+      "description": "左側改設定，右側 Stage × Function 人天矩陣即時重算；下方是最近 5 筆修訂。",
+      "route": "/projects/SYN01",
+      "viewport": {
+        "width": 1280,
+        "height": 900
+      },
+      "steps": [
+        {
+          "action": "fill",
+          "selector": "input[name=\"email\"]",
+          "value": "demo@example.com"
+        },
+        {
+          "action": "fill",
+          "selector": "input[name=\"password\"]",
+          "value": "demo-password-123"
+        },
+        {
+          "action": "click",
+          "selector": "button[type=\"submit\"]"
+        },
+        {
+          "action": "wait",
+          "selector": "[data-testid=\"matrix\"]"
+        }
+      ]
+    },
+    {
+      "id": "project-mobile",
+      "title": "專案頁（手機）",
+      "description": "手機上設定在上、矩陣可左右捲動。",
+      "route": "/projects/SYN01",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "steps": [
+        {
+          "action": "fill",
+          "selector": "input[name=\"email\"]",
+          "value": "demo@example.com"
+        },
+        {
+          "action": "fill",
+          "selector": "input[name=\"password\"]",
+          "value": "demo-password-123"
+        },
+        {
+          "action": "click",
+          "selector": "button[type=\"submit\"]"
+        },
+        {
+          "action": "wait",
+          "selector": "[data-testid=\"matrix\"]"
+        }
+      ]
+    },
+    {
+      "id": "project-conflict",
+      "title": "版本衝突訊息",
+      "description": "另一人先存檔後，再存檔會看到「已被 ○○ 於 ○○ 修改」與「重新載入」。這張需要先執行 pnpm exec tsx scripts/demo-conflict.ts（見 HANDOFF.md）。",
+      "route": "/projects/SYN02",
+      "viewport": {
+        "width": 1280,
+        "height": 900
+      },
+      "steps": [
+        {
+          "action": "fill",
+          "selector": "input[name=\"email\"]",
+          "value": "demo@example.com"
+        },
+        {
+          "action": "fill",
+          "selector": "input[name=\"password\"]",
+          "value": "demo-password-123"
+        },
+        {
+          "action": "click",
+          "selector": "button[type=\"submit\"]"
+        },
+        {
+          "action": "wait",
+          "selector": "[data-testid=\"matrix\"]"
+        },
+        {
+          "action": "click",
+          "selector": "input[name=\"phase\"]"
+        },
+        {
+          "action": "wait",
+          "ms": 5000
+        },
+        {
+          "action": "wait",
+          "ms": 5000
+        },
+        {
+          "action": "click",
+          "selector": "button:has-text(\"儲存\")"
+        },
+        {
+          "action": "wait",
+          "selector": "[data-testid=\"notice-conflict\"]"
+        }
+      ]
     }
   ]
 }
