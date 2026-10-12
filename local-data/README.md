@@ -45,3 +45,7 @@ mise exec -- pnpm test:golden
 ## 檔案範圍的限制
 
 - 目前活頁簿只有少數專案有資料，沒走到的路徑（pre A／TLD 開啟、多數 Adder、例外調整）要靠 `tests/unit/` 的合成資料覆蓋。取得更完整的活頁簿時，直接換掉這個檔案再跑一次黃金測試。
+
+## 防外洩敏感詞清單
+
+`local-data/sensitive-terms.txt`：一行一個詞（公司名、客戶名、廠區代號等），`#` 開頭為註解。pre-commit 會掃描所有 staged 檔案，出現清單裡的詞就擋下。清單本身不進 git；新機器第一次 clone 後請向專案負責人取得這份清單。

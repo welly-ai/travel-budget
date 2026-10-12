@@ -1,0 +1,46 @@
+import { mkdirSync, mkdtempSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+import { describe, expect, it } from "vitest";
+import { findSensitiveTerms, loadSensitiveTerms } from "../../../scripts/hooks/leak-check.mjs";
+
+// 一律使用虛構的詞：真實敏感詞只能存在本機清單裡。
+const TERMS = ["Acmecorp", "Globex", "@ZZQ", "QXP"];
+
+function hitTerms(text: string): string[] {
+  return findSensitiveTerms(text, TERMS).map((hit) => hit.term);
+}
+
+describe("防外洩：findSensitiveTerms", () => {
+  it("整個詞比對、不分大小寫", () => {
+    expect(hitTerms("made by ACMECORP plant")).toEqual(["Acmecorp"]);
+    expect(hitTerms("Globex Pro Max")).toEqual(["Globex"]);
+  });
+
+  it("不命中較長單字中的子字串", () => {
+    expect(hitTerms("workspaceQXPx")).toEqual([]);
+    expect(hitTerms("acmecorporation")).toEqual([]);
+  });
+
+  it("符號開頭的詞不需要前方邊界", () => {
+    expect(hitTerms("Adder_X (comp @ZZQ)")).toEqual(["@ZZQ"]);
+  });
+
+  it("回報行號", () => {
+    expect(findSensitiveTerms("ok\nok\nqxp hotel", TERMS).map((hit) => hit.line)).toEqual([3]);
+  });
+});
+
+describe("防外洩：loadSensitiveTerms", () => {
+  it("沒有清單時回傳空來源（不擋）", () => {
+    const root = mkdtempSync(join(tmpdir(), "leak-"));
+    expect(loadSensitiveTerms(root)).toEqual({ terms: [], sources: [] });
+  });
+
+  it("略過空行與註解", () => {
+    const root = mkdtempSync(join(tmpdir(), "leak-"));
+    mkdirSync(join(root, "local-data"));
+    writeFileSync(join(root, "local-data", "sensitive-terms.txt"), "# 註解\n\nAcmecorp\r\n  Globex  \n");
+    expect(loadSensitiveTerms(root).terms).toEqual(["Acmecorp", "Globex"]);
+  });
+});

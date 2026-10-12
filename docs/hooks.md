@@ -58,8 +58,8 @@ scripts/skills-sync.mjs  skills 複本同步與 --check
 
 | Hook | 規則 |
 |---|---|
-| pre-commit | `git diff --cached --check`；staged 檔案中不得有 `local-data/`、`.xlsx`（合成 fixture 除外）、`.db`；skills 複本一致 |
-| pre-push | `pnpm check` |
+| pre-commit | 先執行被本 repo 蓋掉的全域同名 hook（例如機器層的 secret scan）；`git diff --cached --check`；staged 檔案中不得有 `local-data/`、`.xlsx`（合成 fixture 除外）、`.db`；**防外洩**：staged 內容不得含 `local-data/sensitive-terms.txt` 裡的敏感詞（整個詞、不分大小寫；清單不存在時只提醒）；skills 複本一致 |
+| pre-push | 先執行被蓋掉的全域同名 hook；再跑 `pnpm check` |
 
 ## CI
 
