@@ -6,3 +6,4 @@ export interface SensitiveTermHit {
 }
 export function loadSensitiveTerms(root: string): { terms: string[]; sources: string[] };
 export function findSensitiveTerms(text: string, terms: readonly string[]): SensitiveTermHit[];
+export function decodeTermsFile(buffer: Buffer): string;

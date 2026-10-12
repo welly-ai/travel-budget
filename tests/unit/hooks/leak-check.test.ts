@@ -2,7 +2,7 @@ import { mkdirSync, mkdtempSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
-import { findSensitiveTerms, loadSensitiveTerms } from "../../../scripts/hooks/leak-check.mjs";
+import { decodeTermsFile, findSensitiveTerms, loadSensitiveTerms } from "../../../scripts/hooks/leak-check.mjs";
 
 // 一律使用虛構的詞：真實敏感詞只能存在本機清單裡。
 const TERMS = ["Acmecorp", "Globex", "@ZZQ", "QXP", "虛構電子"];
@@ -55,5 +55,37 @@ describe("防外洩：loadSensitiveTerms", () => {
     mkdirSync(join(root, "local-data"));
     writeFileSync(join(root, "local-data", "sensitive-terms.txt"), "# 註解\n\nAcmecorp\r\n  Globex  \n");
     expect(loadSensitiveTerms(root).terms).toEqual(["Acmecorp", "Globex"]);
+  });
+});
+
+describe("防外洩：清單編碼", () => {
+  const list = "# 註解\r\nAcmecorp\r\n虛構電子\r\n";
+
+  function rootWith(bytes: Buffer): string {
+    const root = mkdtempSync(join(tmpdir(), "leak-enc-"));
+    mkdirSync(join(root, "local-data"));
+    writeFileSync(join(root, "local-data", "sensitive-terms.txt"), bytes);
+    return root;
+  }
+
+  it("UTF-16LE（PowerShell 5.1 的 > 預設）照樣讀得到", () => {
+    const bytes = Buffer.concat([Buffer.from([0xff, 0xfe]), Buffer.from(list, "utf16le")]);
+    expect(loadSensitiveTerms(rootWith(bytes)).terms).toEqual(["Acmecorp", "虛構電子"]);
+  });
+
+  it("UTF-16BE 照樣讀得到", () => {
+    const le = Buffer.from(list, "utf16le");
+    const be = Buffer.from(le);
+    be.swap16();
+    expect(loadSensitiveTerms(rootWith(Buffer.concat([Buffer.from([0xfe, 0xff]), be]))).terms).toEqual(["Acmecorp", "虛構電子"]);
+  });
+
+  it("UTF-8 含 BOM 照樣讀得到", () => {
+    const bytes = Buffer.concat([Buffer.from([0xef, 0xbb, 0xbf]), Buffer.from(list, "utf8")]);
+    expect(loadSensitiveTerms(rootWith(bytes)).terms).toEqual(["Acmecorp", "虛構電子"]);
+  });
+
+  it("沒有 BOM 卻含 NUL 時明確報錯，不靜默放行", () => {
+    expect(() => decodeTermsFile(Buffer.from(list, "utf16le"))).toThrow(/NUL/);
   });
 });
