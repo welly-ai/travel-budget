@@ -17,7 +17,9 @@ describe("env 隔離", () => {
   it.skipIf(process.env["HOOK_TEST_NESTED"] === "1")("在汙染的環境下整套 hook 測試仍然通過", () => {
     const result = spawnSync(
       process.execPath,
-      ["node_modules/vitest/vitest.mjs", "run", "--project", "unit", "tests/unit/hooks"],
+      // probes.test.ts 每條 payload 都啟動一個 hook 程序，且本來就用 cleanEnv 啟動（不受外層汙染影響）；
+      // 巢狀重跑它只會讓這個測試在負載高時逾時，所以排除。
+      ["node_modules/vitest/vitest.mjs", "run", "--project", "unit", "tests/unit/hooks", "--exclude", "tests/unit/hooks/probes.test.ts"],
       {
         cwd: repoRoot,
         encoding: "utf8",
