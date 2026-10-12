@@ -1,7 +1,7 @@
 // 共用工具：只用 Node 內建模組，不依賴 bash、jq。
 import { execFileSync, spawnSync } from "node:child_process";
-import { accessSync, constants, existsSync } from "node:fs";
-import { dirname, resolve } from "node:path";
+import { accessSync, constants, existsSync, realpathSync } from "node:fs";
+import { dirname, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 
 export const PROJECT_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
@@ -19,6 +19,59 @@ export function stripGitEnv(env) {
   }
   for (const name of names) delete clean[name];
   return clean;
+}
+
+/**
+ * 專案根目錄的各種拼法（同一個目錄）：由腳本位置推得的路徑、real path（macOS /tmp -> /private/tmp）、Git 自己的拼法（Windows 的 C:/...）。
+ */
+export function projectRoots(root = PROJECT_ROOT, env = process.env) {
+  const roots = [root];
+  try {
+    roots.push(realpathSync.native(root));
+  } catch {
+    // Keep the derived path only.
+  }
+  try {
+    const top = execFileSync("git", ["-C", root, "rev-parse", "--show-toplevel"], {
+      encoding: "utf8",
+      env: stripGitEnv(env),
+      stdio: ["ignore", "pipe", "ignore"],
+    }).trim();
+    // Accept Git's spelling only when it is this directory (a fixture that is not itself a repository
+    // would otherwise report an enclosing repository).
+    if (top && sameDirectory(top, root)) roots.push(top);
+  } catch {
+    // Not a repository.
+  }
+  return [...new Set(roots)];
+}
+
+function sameDirectory(a, b) {
+  try {
+    return realpathSync.native(a).toLowerCase() === realpathSync.native(b).toLowerCase();
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Resolve symlinks, junctions, and alias spellings of a path that may not exist yet: take the longest
+ * existing ancestor, resolve that to its real path (the native spelling on Windows), and append the rest.
+ */
+export function realpathLoose(path) {
+  let existing = resolve(path);
+  const rest = [];
+  while (!existsSync(existing)) {
+    const parent = dirname(existing);
+    if (parent === existing) return path;
+    rest.unshift(existing.slice(parent.length).replace(/^[\\/]+/, ""));
+    existing = parent;
+  }
+  try {
+    return [realpathSync.native(existing), ...rest].join(sep);
+  } catch {
+    return path;
+  }
 }
 
 /** 以 shell 執行一行指令（Windows 上 pnpm 是 .cmd，需要 shell）。stdout 與 stderr 合併收集，同時轉送到 stderr。 */

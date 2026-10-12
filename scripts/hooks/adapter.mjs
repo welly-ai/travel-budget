@@ -3,8 +3,8 @@
 //   Stop:       {"decision":"block","reason":"..."}（exit 0）
 //   PreToolUse: {"hookSpecificOutput":{"hookEventName":"PreToolUse","permissionDecision":"deny","permissionDecisionReason":"..."}}
 import { runStopGate } from "./gate.mjs";
-import { PROJECT_ROOT, readStdin } from "./lib.mjs";
-import { evaluatePreToolUse } from "./rules.mjs";
+import { PROJECT_ROOT, projectRoots, readStdin, realpathLoose } from "./lib.mjs";
+import { currentBranch, defaultBranches, evaluatePreToolUse } from "./rules.mjs";
 
 function parseJson(text) {
   if (text.trim() === "") return { ok: true, value: {} };
@@ -23,10 +23,18 @@ export function stopResponse(rawInput, options = {}) {
   return result.block ? { decision: "block", reason: result.reason } : {};
 }
 
+/** 主機可能用的專案根目錄拼法：腳本自己的、real path、Git 的，以及指向本專案時的 CLAUDE_PROJECT_DIR。 */
+function preToolUseRoots(env = process.env) {
+  const roots = projectRoots(PROJECT_ROOT, env);
+  // 環境變數指向別處時不採用（過期的變數不可擴大防護範圍）。
+  if (env.CLAUDE_PROJECT_DIR && realpathLoose(env.CLAUDE_PROJECT_DIR).toLowerCase() === realpathLoose(PROJECT_ROOT).toLowerCase()) roots.push(env.CLAUDE_PROJECT_DIR);
+  return [...new Set(roots)];
+}
+
 export function preToolUseResponse(rawInput, options = {}) {
   const parsed = parseJson(rawInput);
   const reason = parsed.ok
-    ? evaluatePreToolUse(parsed.value, { root: PROJECT_ROOT, env: process.env, ...options })
+    ? evaluatePreToolUse(parsed.value, { root: preToolUseRoots(), env: process.env, realpath: realpathLoose, currentBranch, defaultBranches, ...options })
     : "PreToolUse hook 收到無法解析的 payload，已擋下。";
   if (!reason) return {};
   return { hookSpecificOutput: { hookEventName: "PreToolUse", permissionDecision: "deny", permissionDecisionReason: reason } };

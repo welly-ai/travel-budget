@@ -30,6 +30,7 @@ describe("env 隔離", () => {
           CLAUDE_PROJECT_DIR: "/somewhere/else",
           ALLOW_GOLDEN_EDIT: "1",
           GIT_DIR: "/somewhere/else/.git",
+          GIT_WORK_TREE: "/somewhere/else",
           GIT_INDEX_FILE: "/somewhere/else/index",
         },
       },

@@ -48,7 +48,18 @@ scripts/skills-sync.mjs  skills 複本同步與 --check
 - **專案根目錄**：由腳本自己的位置推得，不依賴環境變數。
 - **設定檔呼叫方式**：Claude 用 `"command": "node", "args": ["${CLAUDE_PROJECT_DIR}/scripts/hooks/..."]`（不經 shell）；Codex 用 `node scripts/hooks/...`，沒有專案根目錄變數，所以 Codex 必須從專案根目錄啟動。
 - **工具名稱**：Claude 的檔案寫入工具是 `Write`、`Edit`、`MultiEdit`、`NotebookEdit`（`tool_input.file_path`／`notebook_path`）；Codex 是 `apply_patch`，路徑在 `tool_input.command` 的 patch 文字（`*** Add File:`、`*** Update File:`、`*** Delete File:`、`*** Move to:`，相對於 payload 的 `cwd`）。路徑一律先正規化（反斜線、`C:/` 與 `C:\`、`..`、Windows 不分大小寫）再比對。
-- **已知限制**：PreToolUse 只看 Bash／檔案寫入工具；用 shell 指令改檔（例如 `echo > tests/golden/x`）不在檢查範圍。指令解析是以引號感知的簡單切分，不是完整 shell parser。
+- **預設分支**：「預設分支」是 `main`、`master`，加上 `origin/HEAD` 指向的分支。`HEAD`、`@` 由入口注入的目前分支解析（規則本身維持純函式）。擋 force push（`-f`、`--force`、`--force-with-lease`、`+ref`、`--mirror -f`、`--repo=`）與刪除（`--delete`、`-d`、`:main`）；在功能分支 force push 放行。
+- **受保護路徑與 symlink**：目標取最長的既存祖先做 realpath（Windows 用 `realpathSync.native`）再接回剩餘部分；比對用的根目錄包含腳本推得的路徑、real path、git toplevel，以及指向本專案時的 `CLAUDE_PROJECT_DIR`；相對路徑以 payload 的 `cwd` 為基準。
+- **指令規則**：git 長選項接受前綴（`--no-verif`、`--forc`、`--al`），`git stage` 視同 `add`，`./`、`:/`、`'*'`、`$'.'` 算批次 stage，`-c core.hooksPath=` 覆寫算跳過 hooks，`commit -n` 只對 commit 算（`log -n 5`、`push -n` 放行）；支援陣列型 command 與 `shell` 工具；`bash -c`、`sh -lc`、`eval`、管線進 shell 會展開內層字串。
+- **已知限制**：PreToolUse 只看 Bash／檔案寫入工具與簡單的引號感知切分，不是完整 shell parser。用 shell 重導向或指令改檔（例如 `echo > .claude/skills/x`）仍會放行，由 pre-commit 補位：`skills:check` 抓 skills 複本漂移、leak-check 抓敏感詞；`tests/golden/**` 與 `local-data/**` 的 staged 內容由 pre-commit 的 staged 規則攔下。單純 `echo` 印出批次 stage 文字會放行，但同樣文字放在 `bash -c` 內會被擋（刻意的誤判）。
+- **Codex 與 `.agents/`**：一定要從 repo 根目錄啟動 Codex。workspace-write 沙盒依 Codex 設計，遞迴保護 `.agents/`、`.git`、`.codex` 為唯讀（與 cwd 無關）。要讓 Codex 改 skills（改完執行 `pnpm skills:sync`），依模式與平台：
+
+  | 模式 | macOS | Windows | Linux |
+  |---|---|---|---|
+  | workspace-write | 啟動加 `--add-dir .agents` 可寫 | `--add-dir` 無效，不可寫 | 未測 |
+  | 跳過核准（`--dangerously-bypass-approvals-and-sandbox`） | 可寫 | 可寫 | 未測 |
+
+  Windows 若不想用跳過核准模式，skills 的修改交給 Claude Code。repo 內不要放相對路徑的 `writable_roots`（Windows 實測會讓整個沙盒無法寫入），所以專案不提供 `.codex/config.toml`。
 - **Codex 啟用**：專案的 `.codex/` 要先被信任（專案 trust），hooks 要在 `/hooks` 核准一次；非互動測試可用 `-c 'projects={"<專案絕對路徑>"={trust_level="trusted"}}' --dangerously-bypass-hook-trust`。
 - **env 隔離**：`hook` 測試每個案例自己建構乾淨的 env，不繼承 `AGENT_*`、`CLAUDE*`、`GIT_*`。
 
