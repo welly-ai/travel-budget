@@ -1,0 +1,4 @@
+# Codex 專案設定（只在專案被信任後生效：第一次開 Codex 時要選「信任這個專案」）。
+# workspace-write 沙盒預設把 .agents/ 視為唯讀，skills 與 lessons 都在那裡，要明確開放。
+[sandbox_workspace_write]
+writable_roots = [".agents"]
