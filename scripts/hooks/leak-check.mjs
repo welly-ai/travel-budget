@@ -24,22 +24,27 @@ function escapeRegExp(text) {
   return text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
-/** 詞的前後若是英數字，就要求邊界不是英數字；符號開頭或結尾（例如 @ZZQ）則不加邊界。 */
+/**
+ * 邊界只對 ASCII 英數字有意義：詞的開頭（結尾）若是英數字，前（後）一個字元就不能是英數字。
+ * 中文等沒有詞界的文字，以及符號開頭（例如 @ZZQ），一律用子字串比對。
+ */
 function termPattern(term) {
-  const head = /^[\p{L}\p{N}_]/u.test(term) ? "(?<![\\p{L}\\p{N}_])" : "";
-  const tail = /[\p{L}\p{N}_]$/u.test(term) ? "(?![\\p{L}\\p{N}_])" : "";
+  const head = /^[A-Za-z0-9_]/.test(term) ? "(?<![A-Za-z0-9_])" : "";
+  const tail = /[A-Za-z0-9_]$/.test(term) ? "(?![A-Za-z0-9_])" : "";
   return new RegExp(`${head}${escapeRegExp(term)}${tail}`, "iu");
 }
 
 /**
  * 在文字中找敏感詞。純函式。
- * @returns {{ term: string, line: number }[]}
+ * 回傳的 termIndex 是詞在清單中的位置（從 1 起算）。對外訊息只印檔名、行號與 termIndex，
+ * 不印詞本身：hook 輸出會進到 agent 的對話紀錄，印出來等於再外洩一次。
+ * @returns {{ term: string, termIndex: number, line: number }[]}
  */
 export function findSensitiveTerms(text, terms) {
-  const patterns = terms.map((term) => [term, termPattern(term)]);
+  const patterns = terms.map((term, index) => [term, index + 1, termPattern(term)]);
   const hits = [];
   text.split(/\r?\n/).forEach((line, index) => {
-    for (const [term, pattern] of patterns) if (pattern.test(line)) hits.push({ term, line: index + 1 });
+    for (const [term, termIndex, pattern] of patterns) if (pattern.test(line)) hits.push({ term, termIndex, line: index + 1 });
   });
   return hits;
 }

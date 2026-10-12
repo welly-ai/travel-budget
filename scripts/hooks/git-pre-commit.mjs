@@ -40,7 +40,7 @@ if (sources.length === 0) {
     const shown = spawnSync("git", ["show", `:${path}`], { cwd: PROJECT_ROOT, env, encoding: "buffer", maxBuffer: 64 * 1024 * 1024 });
     if (shown.status !== 0 || shown.stdout.includes(0)) continue; // 讀不到或是二進位檔
     for (const hit of findSensitiveTerms(shown.stdout.toString("utf8"), terms)) {
-      process.stderr.write(`pre-commit: ${path}:${hit.line} 含敏感詞「${hit.term}」（真實公司／客戶／廠區名稱只能放在 local-data/）\n`);
+      process.stderr.write(`pre-commit: ${path}:${hit.line} 含敏感詞（清單第 ${hit.termIndex} 個；為避免再外洩，不顯示詞本身，請對照 local-data/sensitive-terms.txt）\n`);
       failed = true;
     }
   }

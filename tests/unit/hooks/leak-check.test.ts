@@ -5,7 +5,7 @@ import { describe, expect, it } from "vitest";
 import { findSensitiveTerms, loadSensitiveTerms } from "../../../scripts/hooks/leak-check.mjs";
 
 // 一律使用虛構的詞：真實敏感詞只能存在本機清單裡。
-const TERMS = ["Acmecorp", "Globex", "@ZZQ", "QXP"];
+const TERMS = ["Acmecorp", "Globex", "@ZZQ", "QXP", "虛構電子"];
 
 function hitTerms(text: string): string[] {
   return findSensitiveTerms(text, TERMS).map((hit) => hit.term);
@@ -24,6 +24,19 @@ describe("防外洩：findSensitiveTerms", () => {
 
   it("符號開頭的詞不需要前方邊界", () => {
     expect(hitTerms("Adder_X (comp @ZZQ)")).toEqual(["@ZZQ"]);
+  });
+
+  it("中文詞用子字串比對（中文沒有詞界）", () => {
+    expect(hitTerms("客戶：虛構電子股份有限公司")).toEqual(["虛構電子"]);
+    expect(hitTerms("虛構電子")).toEqual(["虛構電子"]);
+  });
+
+  it("英數詞緊接中文時仍算邊界", () => {
+    expect(hitTerms("廠區QXP旁的飯店")).toEqual(["QXP"]);
+  });
+
+  it("回報詞在清單中的位置，供訊息使用而不印出詞", () => {
+    expect(findSensitiveTerms("Globex", TERMS).map((hit) => hit.termIndex)).toEqual([2]);
   });
 
   it("回報行號", () => {
