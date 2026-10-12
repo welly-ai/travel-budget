@@ -54,3 +54,6 @@ next-env.d.ts
 
 # show-me 回饋看板：截圖與回饋含公司資料，只留本機
 /.review/
+
+# Claude Code 執行期檔案
+/.claude/scheduled_tasks.lock

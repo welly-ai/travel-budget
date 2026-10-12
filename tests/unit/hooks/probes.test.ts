@@ -2,13 +2,17 @@ import { spawnSync } from "node:child_process";
 import { cpSync, existsSync, mkdirSync, mkdtempSync, realpathSync, rmSync, symlinkSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
-import { afterAll, describe, expect, it } from "vitest";
+import { afterAll, describe, expect, it, vi } from "vitest";
 import { z } from "zod";
 import { cleanEnv, repoRoot } from "./helpers";
 
 // 審查探測清單：一律走真實入口（spawn 入口腳本、stdin 餵 payload）。stdout 為 `{}` 代表放行，其餘代表擋下。
 // 受保護路徑用 travel-budget 的清單：tests/golden、local-data、.claude/skills。
 // G 是 "git" 的拼接，避免本檔被誤判成指令。
+
+// 每個案例都會啟動真實的 hook 程序（一條 payload 一個 node）；機器負載高時（例如多個 agent 同時跑測試）
+// 會超過 vitest 預設的 5 秒。逾時不代表規則錯，所以給本檔較長的上限。
+vi.setConfig({ testTimeout: 60_000 });
 
 const G = ["g", "it"].join("");
 const swap = (command: string) => command.replace(/\bG\b/g, G);
