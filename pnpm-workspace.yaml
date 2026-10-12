@@ -1,5 +1,6 @@
-onlyBuiltDependencies:
-  - better-sqlite3
+# better-sqlite3 套件內已附各平台預編譯檔（prebuilds/，含 win32-x64），不需要執行 build script。
+# 若允許它 build，pnpm 會跑 node-gyp rebuild，在沒有 Visual Studio 的 Windows 上 pnpm install 會失敗。
 ignoredBuiltDependencies:
+  - better-sqlite3
   - sharp
   - unrs-resolver
