@@ -1,0 +1,17 @@
+{
+  "description": "Configurable project Stop quality gate.",
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash -c 'for variable in $(git rev-parse --local-env-vars 2>/dev/null); do unset \"$variable\"; done; project_root=$(git rev-parse --show-toplevel) || exit 2; export AGENT_HOOK_CLIENT=codex AGENT_PROJECT_DIR=\"$project_root\"; exec bash \"$project_root/scripts/quality-gate.sh\"'",
+            "timeout": 60,
+            "statusMessage": "Running project quality gate"
+          }
+        ]
+      }
+    ]
+  }
+}

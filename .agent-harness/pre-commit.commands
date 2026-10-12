@@ -1,0 +1,4 @@
+# Fast checks run before a commit is created.
+# Keep this list quick enough to run on every commit.
+git diff --cached --check
+bash scripts/check-generated-evidence.sh

@@ -1,0 +1,22 @@
+name: Trusted harness
+
+on:
+  push:
+    branches: [main]
+  # Maintainers may use this to verify a trusted ref without accepting PR code.
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  authoritative:
+    runs-on:
+      group: trusted-ci
+      labels: [self-hosted, Linux, X64, trusted]
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - name: Exercise authoritative harness
+        run: bash scripts/check-harness.sh

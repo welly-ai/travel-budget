@@ -1,0 +1,2 @@
+# Broader checks run before commits leave the workstation.
+bash scripts/check-harness.sh

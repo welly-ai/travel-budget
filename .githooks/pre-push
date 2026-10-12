@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+project_root=$(git rev-parse --show-toplevel)
+export AGENT_PROJECT_DIR="$project_root"
+exec bash "$project_root/scripts/run-harness-commands.sh" \
+  pre-push "$project_root/.agent-harness/pre-push.commands"

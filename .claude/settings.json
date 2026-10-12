@@ -1,0 +1,27 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$CLAUDE_PROJECT_DIR/.claude/hooks/block-git-add-all.sh\"",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "AGENT_HOOK_CLIENT=claude AGENT_PROJECT_DIR=\"$CLAUDE_PROJECT_DIR\" bash \"$CLAUDE_PROJECT_DIR/scripts/quality-gate.sh\"",
+            "timeout": 60
+          }
+        ]
+      }
+    ]
+  }
+}
