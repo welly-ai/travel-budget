@@ -11,7 +11,8 @@
 | `pnpm dev` | 本機開發伺服器 |
 | `pnpm check` | 型別檢查、lint、unit 測試。**宣告完成前必須通過**，Stop hook 也會自動跑 |
 | `pnpm test:golden` | 黃金測試：用 `local-data/` 的真實 Excel 比對計算結果。改到計算引擎、匯入或匯出時**必須手動跑**，並在回報中附上結果 |
-| `pnpm skills:sync` | 把 `.agents/skills/` 複製到 `.claude/skills/` |
+| `pnpm skills:sync` | 把 `.agents/skills/` 複製成 `.claude/skills/` 的實體複本（不用 symlink，Windows 才不會壞） |
+| `pnpm show-me` | 啟動回饋看板（報告頁與截圖回饋），見 `show-me` skill |
 | `pnpm db:generate` | schema 變更後產生 migration |
 
 只能用 pnpm。腳本一律用 Node 寫，不寫 bash：開發者會在原生 Windows 上工作。
@@ -65,8 +66,24 @@ src/mcp      MCP 工具定義（薄層，只呼叫 server）
 - 新增或移動防護機制前，讀 [執行強度階梯](docs/enforcement-ladder.md)；hooks 的完整規格在 [docs/hooks.md](docs/hooks.md)。
 - 涉及框架或套件的行為，先查官方文件和已安裝版本的原始碼（`node_modules/<pkg>`），再寫變通做法。
 
+## 回報原則
+
+讀回報的人是非工程師，一次只能記住螢幕上看得到的東西。所有對話回覆、show-me 報告頁、每輪截圖摘要都遵守以下規則（完整版見 `i-have-adhd` skill）：
+
+1. **第一行寫「狀態＋下一步」**：例如「READY_FOR_REVIEW · 下一步：請看看板 http://127.0.0.1:8770/rounds/…」。狀態就是上面三種終止狀態之一；工作途中則寫目前進度。不要先講背景。
+2. **重述目前進度**：例如「第 3 步／共 5 步完成：已匯入 Guidance。下一步：計算引擎。」
+3. **把成果講具體**：說「現在可以在 `/projects/P01` 改 Class，人天矩陣會即時更新」，不要只說「改了一些東西」。
+4. **多步驟就編號**，每步只做一件事；清單一次最多 5 項，多的分組或之後再列。
+5. **時間估算要具體**：說「約 15 分鐘」，不要說「一點時間」。
+6. **錯誤直接講**：寫清楚原因和修法，不加語氣詞。
+7. **不離題**：發現別的問題，做完手上的事再另外提一句。
+8. **不寫開場白、事後總結、客套結尾**；以一個兩分鐘內能做完的下一步作結。
+
+例外：使用者要求「解釋」時可以寫長，但仍要分段加標題；要做破壞性操作前，一定先確認。
+
 ## Git
 
+- 第一次 clone 後執行 `node scripts/install-git-hooks.mjs`（只設定本 repo 的 hooks 路徑）。
 - 一次只 stage 指定的檔案；`git add -A`、`git add .`、`--all` 會被 hook 擋下。
 - 不要用 `--no-verify` 跳過 git hooks，也不要 force push 到 `main`。
 - `.claude/skills/` 是由 `pnpm skills:sync` 產生的複本，只改 `.agents/skills/`。

@@ -1,13 +1,26 @@
 {
-  "description": "Configurable project Stop quality gate.",
+  "description": "Stop 品質關卡與 PreToolUse 防護；規則見 docs/hooks.md。指令以 Codex 的工作目錄（專案根目錄）為基準。",
   "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash|apply_patch|Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node scripts/hooks/codex-pretooluse.mjs",
+            "timeout": 10,
+            "statusMessage": "Checking project guardrails"
+          }
+        ]
+      }
+    ],
     "Stop": [
       {
         "hooks": [
           {
             "type": "command",
-            "command": "bash -c 'for variable in $(git rev-parse --local-env-vars 2>/dev/null); do unset \"$variable\"; done; project_root=$(git rev-parse --show-toplevel) || exit 2; export AGENT_HOOK_CLIENT=codex AGENT_PROJECT_DIR=\"$project_root\"; exec bash \"$project_root/scripts/quality-gate.sh\"'",
-            "timeout": 60,
+            "command": "node scripts/hooks/codex-stop.mjs",
+            "timeout": 300,
             "statusMessage": "Running project quality gate"
           }
         ]

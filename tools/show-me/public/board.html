@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>回饋看板</title>
+<link rel="stylesheet" href="/welly.css">
+<link rel="stylesheet" href="/static/board.css">
+</head>
+<body>
+<header class="top">
+  <div class="top-main">
+    <a class="back" href="/">← 首頁</a>
+    <div>
+      <p class="eyebrow">回饋看板</p>
+      <h1 id="round-title">載入中…</h1>
+    </div>
+  </div>
+  <div class="top-actions">
+    <span id="save-state" class="muted" role="status" aria-live="polite"></span>
+    <button id="submit" class="btn primary" type="button">送出本輪回饋</button>
+  </div>
+</header>
+<div id="banner" class="banner" hidden></div>
+<div id="statusbar" class="statusbar" role="status" aria-live="polite"></div>
+<details id="summary-box" class="summary" open hidden>
+  <summary>這一輪：請你看什麼、要你決定什麼</summary>
+  <div id="summary-text" class="summary-text"></div>
+</details>
+<nav id="strip" class="strip" aria-label="項目清單"></nav>
+<main class="board">
+  <section class="stage" aria-label="截圖">
+    <div class="toolbar" role="toolbar" aria-label="標注工具">
+      <button class="btn tool" data-tool="select" title="選取（Esc）" type="button">選取</button>
+      <button class="btn tool" data-tool="rect" title="矩形框（R）" type="button">矩形 <kbd>R</kbd></button>
+      <button class="btn tool" data-tool="arrow" title="箭頭（A）" type="button">箭頭 <kbd>A</kbd></button>
+      <button class="btn tool" data-tool="pin" title="編號圖釘（P）" type="button">圖釘 <kbd>P</kbd></button>
+      <button class="btn tool" data-tool="path" title="手繪（D）" type="button">手繪 <kbd>D</kbd></button>
+      <span class="sep"></span>
+      <span id="view-modes" class="modes" hidden>
+        <button class="btn vm" data-view="current" type="button">只看現況</button>
+        <button class="btn vm" data-view="side" type="button">並排（目標｜現況）</button>
+        <button class="btn vm" data-view="overlay" type="button">疊圖</button>
+        <label id="opacity-box" class="small" hidden>目標透明度 <input id="opacity" type="range" min="0" max="100" value="50"></label>
+      </span>
+      <button class="btn" id="zoom-out" title="縮小" type="button">－</button>
+      <button class="btn" id="zoom-label" title="切換「符合寬度」與 100%" type="button">符合寬度</button>
+      <button class="btn" id="zoom-in" title="放大" type="button">＋</button>
+    </div>
+    <div class="viewport" id="viewport">
+      <div class="pair" id="pair">
+      <figure class="refcol" id="refcol" hidden><figcaption>目標（參考圖）</figcaption><img id="ref-side" alt="參考圖" draggable="false"></figure>
+      <div class="canvas" id="canvas">
+        <img id="shot" alt="" draggable="false">
+        <img id="ref-over" alt="" draggable="false" hidden>
+        <svg id="overlay" xmlns="http://www.w3.org/2000/svg"></svg>
+      </div>
+      </div>
+    </div>
+    <p class="hint">快捷鍵：←／→ 換張｜1 OK、2 要修改、3 有疑問｜R 矩形、A 箭頭、P 圖釘、D 手繪｜Esc 取消｜Delete 刪除選取的標注</p>
+  </section>
+  <aside class="panel" aria-label="留言">
+    <h2 id="item-title"></h2>
+    <p id="item-meta" class="muted small"></p>
+    <p id="item-desc" class="small"></p>
+    <div class="status" role="group" aria-label="狀態">
+      <button class="btn st" data-status="ok" type="button">OK <kbd>1</kbd></button>
+      <button class="btn st" data-status="change" type="button">要修改 <kbd>2</kbd></button>
+      <button class="btn st" data-status="question" type="button">有疑問 <kbd>3</kbd></button>
+    </div>
+    <label class="lbl" for="comment">整體留言</label>
+    <textarea id="comment" rows="5" maxlength="5000" placeholder="這一張整體上有什麼想說的？"></textarea>
+    <h3>標注 <span id="ann-count" class="muted"></span></h3>
+    <ol id="ann-list" class="ann-list"></ol>
+    <p id="ann-empty" class="muted small">在截圖上拖曳就能標注。先選上方工具，或按 R／A／P／D。</p>
+  </aside>
+</main>
+<script type="module" src="/static/app.js"></script>
+</body>
+</html>

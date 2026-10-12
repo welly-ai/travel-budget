@@ -1,0 +1,102 @@
+import { type ProjectConfig, projectConfigSchema } from "@/domain";
+
+/**
+ * 合成專案（可提交）：與 buildSyntheticReference() 搭配，名稱與日期全部虛構。
+ * 手寫、固定內容，涵蓋：開關全關、部分開啟、全開、pre A／TLD 開關、有無 build 日期、例外調整（含負值）。
+ */
+
+const ALL_OFF = {
+  adsp: false,
+  hapticTp2: false,
+  id: false,
+  dqaItm: false,
+  dqaRel: false,
+  mePlastic: false,
+  thm: false,
+  secondPcb: false,
+  gpu: false,
+} satisfies ProjectConfig["gates"];
+
+export const syntheticProjects: ProjectConfig[] = [
+  projectConfigSchema.parse({
+    schemaVersion: 1,
+    deptCode: "SYN-DEPT",
+    projectCode: "SYN01",
+    projectName: "Synthetic Alpha",
+    lob: "LOB One",
+    gen: "GEN-A",
+    phase: 2,
+    projectClass: 4,
+    gates: ALL_OFF,
+    includePreA: false,
+    includeTld: false,
+    buildDates: { A: "2031-02-01", B: "2031-03-15" },
+    manualAdjustments: [],
+  }),
+  projectConfigSchema.parse({
+    schemaVersion: 1,
+    deptCode: "SYN-DEPT",
+    projectCode: "SYN02",
+    projectName: "Synthetic Beta",
+    lob: "LOB One",
+    gen: "GEN-A",
+    phase: 3,
+    projectClass: 3.5,
+    gates: { ...ALL_OFF, hapticTp2: true, gpu: true },
+    includePreA: true,
+    includeTld: false,
+    buildDates: {
+      RFQ: "2030-12-20",
+      "pre A": "2031-01-05",
+      A: "2031-02-01",
+      B: "2031-03-15",
+      C: "2031-04-30",
+      "Pre-MP": "2031-06-01",
+      MP: "2031-07-31",
+    },
+    manualAdjustments: [{ stage: "RFQ", function: "Core-1", man: 2, days: 3, remark: "synthetic RFQ trip" }],
+  }),
+  projectConfigSchema.parse({
+    schemaVersion: 1,
+    deptCode: "SYN-DEPT",
+    projectCode: "SYN03",
+    projectName: "Synthetic Gamma",
+    lob: "LOB Two",
+    gen: "GEN-B",
+    phase: 2,
+    projectClass: 2,
+    gates: { ...ALL_OFF, mePlastic: true },
+    includePreA: false,
+    includeTld: true,
+    buildDates: { TLD: "2031-05-10" },
+    manualAdjustments: [
+      { stage: "A", function: "Core-2", man: 1, days: 5, remark: "extra trip" },
+      { stage: "B", function: "Supp-NoGuidance", man: -1, days: 4, remark: "deduction" },
+    ],
+  }),
+  projectConfigSchema.parse({
+    schemaVersion: 1,
+    deptCode: "SYN-DEPT",
+    projectCode: "SYN04",
+    projectName: "Synthetic Delta",
+    lob: "LOB Two",
+    gen: "GEN-B",
+    phase: 3,
+    projectClass: 3,
+    gates: {
+      adsp: true,
+      hapticTp2: true,
+      id: true,
+      dqaItm: true,
+      dqaRel: true,
+      mePlastic: true,
+      thm: true,
+      secondPcb: true,
+      gpu: true,
+    },
+    includePreA: true,
+    includeTld: true,
+    buildDates: {},
+    manualAdjustments: [],
+  }),
+];

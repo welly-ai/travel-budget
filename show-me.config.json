@@ -1,0 +1,18 @@
+{
+  "baseUrl": "http://127.0.0.1:3000",
+  "items": [
+    {
+      "id": "home",
+      "title": "首頁（桌機）",
+      "description": "範例項目。請改成這次要給使用者看的頁面。",
+      "route": "/",
+      "viewport": { "width": 1280, "height": 800 }
+    },
+    {
+      "id": "home-mobile",
+      "title": "首頁（手機）",
+      "route": "/",
+      "viewport": { "width": 390, "height": 844 }
+    }
+  ]
+}

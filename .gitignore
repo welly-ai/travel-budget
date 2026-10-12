@@ -51,3 +51,6 @@ next-env.d.ts
 *.db
 *.db-wal
 *.db-shm
+
+# show-me 回饋看板：截圖與回饋含公司資料，只留本機
+/.review/

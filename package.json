@@ -10,9 +10,15 @@
     "lint": "eslint --max-warnings 0",
     "test": "vitest run --project unit",
     "test:golden": "vitest run --project golden",
-    "check": "pnpm typecheck && pnpm lint && pnpm test",
+    "check": "pnpm typecheck && pnpm lint && pnpm test && pnpm skills:check",
     "db:generate": "drizzle-kit generate",
-    "db:migrate": "drizzle-kit migrate"
+    "db:migrate": "drizzle-kit migrate",
+    "skills:sync": "node scripts/skills-sync.mjs",
+    "skills:check": "node scripts/skills-sync.mjs --check",
+    "show-me": "node tools/show-me/server.mjs",
+    "show-me:capture": "node tools/show-me/capture.mjs",
+    "show-me:feedback": "node tools/show-me/feedback.mjs",
+    "excel:inspect": "tsx scripts/excel-inspect.ts"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.32.1",
@@ -35,6 +41,7 @@
     "drizzle-kit": "^0.31.11",
     "eslint": "^9",
     "eslint-config-next": "16.4.0",
+    "playwright": "^1.64.0",
     "tailwindcss": "^4",
     "tsx": "^4.23.15",
     "typescript": "^5",

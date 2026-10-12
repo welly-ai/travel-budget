@@ -1,17 +1,20 @@
-name: Pull request harness
+name: Check
 
 on:
   pull_request:
+  push:
+    branches: [main]
 
 permissions:
   contents: read
 
 jobs:
-  self-test:
+  check:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           persist-credentials: false
-      - name: Exercise harness success and deliberate-failure paths
-        run: bash scripts/check-harness.sh
+      - uses: jdx/mise-action@v2
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm check

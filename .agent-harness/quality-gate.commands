@@ -1,2 +1,0 @@
-# One Bash command per non-comment line. Replace or extend for the project.
-bash scripts/check-harness.sh

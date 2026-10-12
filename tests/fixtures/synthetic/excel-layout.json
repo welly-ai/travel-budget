@@ -1,0 +1,327 @@
+{
+  "schemaVersion": 1,
+  "alwaysLabel": "(always)",
+  "includePreALabel": "Include early build",
+  "includeTldLabel": "Include late build",
+  "gateLabels": {
+    "adsp": "Opt_Alpha",
+    "hapticTp2": "Opt_Beta two",
+    "id": "Opt_Gamma",
+    "dqaItm": "Opt_Delta (site-1)",
+    "dqaRel": "Opt_Epsilon (site-2)",
+    "mePlastic": "Opt_Zeta _ Neg",
+    "thm": "Opt_Eta",
+    "secondPcb": "Second board",
+    "gpu": "Graphics"
+  },
+  "optionLabels": {
+    "secondPcb": "Second board",
+    "gpu": "Graphics"
+  },
+  "buildDateLabels": {
+    "RFQ": "RFQ date (synthetic)",
+    "pre A": "pre A date (synthetic)",
+    "A": "A date (synthetic)",
+    "B": "B date (synthetic)",
+    "C": "C date (synthetic)",
+    "TLD": "TLD date (synthetic)",
+    "Pre-MP": "Pre-MP date (synthetic)",
+    "MP": "MP date (synthetic)"
+  },
+  "oaHeaders": [
+    "DeptCode(部門代碼)",
+    "Budgeted Period",
+    "Project Code",
+    "TravelArea",
+    "TravelSite",
+    "人頭",
+    "TravelerDays",
+    "人天",
+    "Visa Expense",
+    "Accommodation",
+    "Meal Provision(plant)",
+    "TelephoneExp Estimation",
+    "AirTicket",
+    "Project code",
+    "Phase",
+    "Function",
+    "Man",
+    "Days",
+    "Total days",
+    "Include?"
+  ],
+  "inputTemplate": [
+    {
+      "address": "A1",
+      "text": "Step 1  ·  Complete the Table   —  只需填寫黃底格子 / Fill in the yellow cells only"
+    },
+    {
+      "address": "B2",
+      "text": "DeptCode (部門代碼)"
+    },
+    {
+      "address": "B3",
+      "text": "Budget Year (預算年度)"
+    },
+    {
+      "address": "B5",
+      "text": "Item / 項目"
+    },
+    {
+      "address": "C5",
+      "text": "Input Restrictions / 可輸入值"
+    },
+    {
+      "address": "B6",
+      "text": "Project Code"
+    },
+    {
+      "address": "C6",
+      "text": "ex. SYN01"
+    },
+    {
+      "address": "B7",
+      "text": "Project Name"
+    },
+    {
+      "address": "C7",
+      "text": "free text"
+    },
+    {
+      "address": "B8",
+      "text": "LOB"
+    },
+    {
+      "address": "C8",
+      "text": "LOB One / LOB Two / LOB Three"
+    },
+    {
+      "address": "B9",
+      "text": "Gen"
+    },
+    {
+      "address": "C9",
+      "text": "GEN-A, GEN-B, etc."
+    },
+    {
+      "address": "B10",
+      "text": "Phase"
+    },
+    {
+      "address": "C10",
+      "text": "2 or 3"
+    },
+    {
+      "address": "B11",
+      "text": "Class"
+    },
+    {
+      "address": "C11",
+      "text": "4 or 3.5 or 3 or 2"
+    },
+    {
+      "address": "B12",
+      "text": "Type"
+    },
+    {
+      "address": "C12",
+      "text": "auto ← \"C\"&Class"
+    },
+    {
+      "address": "B13",
+      "text": "Adder / Option 條件    勾 Y 才計入人天"
+    },
+    {
+      "address": "B14",
+      "text": "Opt_Alpha"
+    },
+    {
+      "address": "C14",
+      "text": "Y or N"
+    },
+    {
+      "address": "B15",
+      "text": "Opt_Beta two"
+    },
+    {
+      "address": "C15",
+      "text": "Y or N"
+    },
+    {
+      "address": "B16",
+      "text": "Opt_Gamma"
+    },
+    {
+      "address": "C16",
+      "text": "Y or N"
+    },
+    {
+      "address": "B17",
+      "text": "Opt_Delta (site-1)"
+    },
+    {
+      "address": "C17",
+      "text": "Y or N"
+    },
+    {
+      "address": "B18",
+      "text": "Opt_Epsilon (site-2)"
+    },
+    {
+      "address": "C18",
+      "text": "Y or N"
+    },
+    {
+      "address": "B19",
+      "text": "Opt_Zeta _ Neg"
+    },
+    {
+      "address": "C19",
+      "text": "Y or N"
+    },
+    {
+      "address": "B20",
+      "text": "Opt_Eta"
+    },
+    {
+      "address": "C20",
+      "text": "Y or N"
+    },
+    {
+      "address": "B21",
+      "text": "Second board"
+    },
+    {
+      "address": "C21",
+      "text": "Y or N"
+    },
+    {
+      "address": "B22",
+      "text": "Graphics"
+    },
+    {
+      "address": "C22",
+      "text": "Y or N"
+    },
+    {
+      "address": "B23",
+      "text": "Optional Build    guidance 定義為選配"
+    },
+    {
+      "address": "B24",
+      "text": "Include early build"
+    },
+    {
+      "address": "C24",
+      "text": "Y or N"
+    },
+    {
+      "address": "B25",
+      "text": "Include late build"
+    },
+    {
+      "address": "C25",
+      "text": "Y or N"
+    },
+    {
+      "address": "B26",
+      "text": "Build 里程碑日期    自動換算 Budgeted Period (YYYY-MM)"
+    },
+    {
+      "address": "B27",
+      "text": "RFQ date (synthetic)"
+    },
+    {
+      "address": "C27",
+      "text": "yyyy/mm/dd"
+    },
+    {
+      "address": "B28",
+      "text": "pre A date (synthetic)"
+    },
+    {
+      "address": "C28",
+      "text": "yyyy/mm/dd"
+    },
+    {
+      "address": "B29",
+      "text": "A date (synthetic)"
+    },
+    {
+      "address": "C29",
+      "text": "yyyy/mm/dd"
+    },
+    {
+      "address": "B30",
+      "text": "B date (synthetic)"
+    },
+    {
+      "address": "C30",
+      "text": "yyyy/mm/dd"
+    },
+    {
+      "address": "B31",
+      "text": "C date (synthetic)"
+    },
+    {
+      "address": "C31",
+      "text": "yyyy/mm/dd"
+    },
+    {
+      "address": "B32",
+      "text": "TLD date (synthetic)"
+    },
+    {
+      "address": "C32",
+      "text": "yyyy/mm/dd"
+    },
+    {
+      "address": "B33",
+      "text": "Pre-MP date (synthetic)"
+    },
+    {
+      "address": "C33",
+      "text": "yyyy/mm/dd"
+    },
+    {
+      "address": "B34",
+      "text": "MP date (synthetic)"
+    },
+    {
+      "address": "C34",
+      "text": "yyyy/mm/dd"
+    },
+    {
+      "address": "B35",
+      "text": "計算結果 (自動)    "
+    },
+    {
+      "address": "B36",
+      "text": "Total Man (總人次)"
+    },
+    {
+      "address": "B37",
+      "text": "Total Man-Days (總人天)"
+    },
+    {
+      "address": "B38",
+      "text": "Check 檢查"
+    },
+    {
+      "address": "C38",
+      "text": "OK ＝ 可用"
+    }
+  ],
+  "inputMerges": [
+    "A1:R1",
+    "B13:R13",
+    "B23:R23",
+    "B26:R26",
+    "B35:R35"
+  ],
+  "lobs": [
+    "LOB One",
+    "LOB Two",
+    "LOB Three"
+  ]
+}
