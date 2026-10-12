@@ -135,6 +135,34 @@ describe.each(["claude", "codex"] as const)("%s 入口：受保護路徑探測",
     expect(verdict(root, client, { tool_name: "Edit", tool_input: { file_path: "other/x" } })).toBe("allow");
   });
 
+  // 懸空連結：目標不存在時 existsSync 回 false，舊實作把它當成普通的新名稱，寫入卻會建出受保護路徑下的檔案。
+  // Windows 建立檔案 symlink 需要權限（目錄用 junction 不需要），建不出來時跳過檔案那一案。
+  it.each(PROTECTED)("C：指向 %s 內、目標還不存在的懸空連結也擋", (dir) => {
+    const { root } = makeProject();
+    mkdirSync(join(root, dir), { recursive: true });
+    symlinkSync(join(root, dir, "newdir"), join(root, "danglingdir"), "junction");
+    for (const file_path of ["danglingdir/x.md", `${root}/danglingdir/deep/y.md`]) {
+      expect(verdict(root, client, { tool_name: "Write", tool_input: { file_path } }), file_path).toBe("deny");
+    }
+    try {
+      symlinkSync(join(root, dir, "x.md"), join(root, "danglingfile"), "file");
+    } catch {
+      return;
+    }
+    expect(verdict(root, client, { tool_name: "Write", tool_input: { file_path: "danglingfile" } })).toBe("deny");
+  });
+
+  it("C：symlink 循環時拒絕（不默默放行）", () => {
+    const { root } = makeProject();
+    try {
+      symlinkSync(join(root, "loopb"), join(root, "loopa"), "junction");
+      symlinkSync(join(root, "loopa"), join(root, "loopb"), "junction");
+    } catch {
+      return;
+    }
+    expect(verdict(root, client, { tool_name: "Write", tool_input: { file_path: "loopa/x" } })).toBe("deny");
+  });
+
   it.skipIf(process.platform !== "darwin")("C：根目錄的別名拼法（/tmp 對 /private/tmp）會被追蹤", () => {
     const { root } = makeProject();
     if (!root.startsWith("/private/")) return;
