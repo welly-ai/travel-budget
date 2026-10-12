@@ -13,11 +13,30 @@ const TERMS_FILE = "local-data/sensitive-terms.txt";
 export function loadSensitiveTerms(root) {
   const path = resolve(root, TERMS_FILE);
   if (!existsSync(path)) return { terms: [], sources: [] };
-  const terms = readFileSync(path, "utf8")
+  const terms = decodeTermsFile(readFileSync(path))
     .split(/\r?\n/)
     .map((line) => line.trim())
     .filter((line) => line && !line.startsWith("#"));
   return { terms, sources: [TERMS_FILE] };
+}
+
+/**
+ * 依 BOM 解碼清單。Windows PowerShell 5.1 的 `>`／Out-File 預設寫出 UTF-16LE；
+ * 若照 UTF-8 讀，每個詞都夾著 NUL，永遠比對不到，檢查會靜默放行。
+ * 沒有 BOM 卻含 NUL 時，無法確定編碼，直接報錯，不能當作通過。
+ */
+export function decodeTermsFile(buffer) {
+  if (buffer[0] === 0xff && buffer[1] === 0xfe) return buffer.subarray(2).toString("utf16le");
+  if (buffer[0] === 0xfe && buffer[1] === 0xff) {
+    const swapped = Buffer.from(buffer.subarray(2));
+    swapped.swap16();
+    return swapped.toString("utf16le");
+  }
+  if (buffer.includes(0)) {
+    throw new Error(`${TERMS_FILE} 含 NUL 位元組但沒有 BOM，無法判斷編碼；請存成 UTF-8（例如 PowerShell 用 Set-Content -Encoding utf8）`);
+  }
+  const text = buffer.toString("utf8");
+  return text.charCodeAt(0) === 0xfeff ? text.slice(1) : text;
 }
 
 function escapeRegExp(text) {
