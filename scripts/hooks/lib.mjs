@@ -1,6 +1,6 @@
 // 共用工具：只用 Node 內建模組，不依賴 bash、jq。
 import { execFileSync, spawnSync } from "node:child_process";
-import { existsSync } from "node:fs";
+import { accessSync, constants, existsSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -67,6 +67,14 @@ export function runShadowedHook(name, { env, input = "" }) {
     if (hookDir === projectHooks) continue;
     const hook = resolve(hookDir, name);
     if (!existsSync(hook)) continue;
+    // git 本身會略過沒有執行權限的 hook，這裡比照辦理（Windows 沒有執行位元，不檢查）。
+    if (process.platform !== "win32") {
+      try {
+        accessSync(hook, constants.X_OK);
+      } catch {
+        continue;
+      }
+    }
     // Windows 上 hook 檔不能直接執行，交給 Git for Windows 附的 sh。
     const result =
       process.platform === "win32"
