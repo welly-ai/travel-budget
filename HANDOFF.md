@@ -27,7 +27,8 @@
 |---|---|
 | `/login` | email＋密碼登入；沒登入開任何頁面都會被導到這裡 |
 | `/projects` | 專案列表：代碼、名稱、LOB、Phase、Class、總人天、最後修改者與時間 |
-| `/projects/SYN01` | 專案頁：左邊改 Phase、Class、各 Adder／Option 開關、pre A／TLD、build 日期；右邊 Stage × Function 人天矩陣即時重算；「儲存」顯示版本號；兩人同時改時顯示「已被 ○○ 於 ○○ 修改」；「匯出 Excel（舊版面）」；下方最近 5 筆修訂 |
+| `/projects/SYN01` | 專案頁：左邊改 Phase、Class、各 Adder／Option 開關、pre A／TLD、build 日期；右邊 Stage × Function 人天矩陣即時重算；「儲存」顯示版本號；兩人同時改時顯示「已被 ○○ 於 ○○ 修改」；「匯出 Excel（舊版面）」；下方最近 5 筆修訂。頂部差異列顯示「已存 → 試算」，有變動的格子標黃底與 ▲▼。點格子可手動覆寫人次與天數；偏離 Guidance 超出容許範圍時要填理由才能存 |
+| `/settings/tolerance` | 容許範圍設定：可建多組（例如不同地區用不同的 ±%），專案頁的「容許範圍」下拉選單選用；沒選時用「預設（±30%）」 |
 | `/api/projects/SYN01/export` | 匯出 Excel 的下載連結（要登入） |
 | `/api/mcp` | MCP 端點（給 AI 工具用）。工具：`list_projects`、`calculate_budget`（只試算，不寫入）。要在 `.env.local` 設 `MCP_TOKEN`，用 `pnpm mcp:smoke` 檢查 |
 
@@ -58,5 +59,6 @@
 
 - 只有一種使用者角色，所有登入者都能改任何專案。
 - 專案頁只能改設定；新增專案、改名稱與 LOB、例外調整、把草稿設為生效都還沒有畫面。
+- 容許範圍設定還不能刪除，也沒有修訂紀錄；格子覆寫對話框顯示的是 Guidance 值，沒算進例外調整。
 - 匯出的是已儲存的版本，不含畫面上未儲存的修改。
 - 沒有金額計算（待需求確認）。
