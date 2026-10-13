@@ -16,12 +16,14 @@ async function ProjectContent({ params }: { params: PageProps<"/projects/[code]"
       record: services().getProject({ projectCode }),
       result: services().calculateProject({ projectCode }).result,
       revisions: services().listRevisions({ projectCode, limit: 5 }),
+      review: services().reviewOverrides({ projectCode }),
+      profiles: services().listToleranceProfiles(),
     };
   } catch (error: unknown) {
     if (error instanceof NotFoundError) notFound();
     throw error;
   }
-  const { record, result, revisions } = data;
+  const { record, result, revisions, review, profiles } = data;
   return (
       <>
         <ProjectEditor
@@ -31,6 +33,10 @@ async function ProjectContent({ params }: { params: PageProps<"/projects/[code]"
           status={record.status}
           version={record.version}
           initialResult={result}
+          initialReview={review}
+          profiles={profiles}
+          initialCellOverrides={record.config.cellOverrides}
+          initialToleranceProfileId={record.config.toleranceProfileId}
           initialSettings={{
             phase: record.config.phase,
             projectClass: record.config.projectClass,
