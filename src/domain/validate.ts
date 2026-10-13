@@ -1,4 +1,4 @@
-import type { ProjectConfig } from "./project";
+import { migrateProjectConfig, type ProjectConfig } from "./project";
 import type { ReferenceData } from "./reference";
 
 export interface ReferenceIssue {
@@ -20,6 +20,11 @@ export function validateProjectAgainstReference(config: ProjectConfig, reference
         path: `manualAdjustments[${index}].function`,
         message: `參考資料沒有這個 Function：${adjustment.function}`,
       });
+    }
+  });
+  migrateProjectConfig(config).cellOverrides.forEach((item, index) => {
+    if (!known.has(item.function)) {
+      issues.push({ path: `cellOverrides[${index}].function`, message: `參考資料沒有這個 Function：${item.function}` });
     }
   });
   return issues;

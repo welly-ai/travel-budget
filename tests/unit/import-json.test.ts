@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { ImportError, type ImportIssue, parseProjectConfigJson, parseProjectConfigListJson } from "@/import";
 import { syntheticProjects } from "../fixtures/synthetic/projects";
 import { buildSyntheticReference } from "../fixtures/synthetic/reference";
+import { toV1Json } from "./helpers";
 
 const reference = buildSyntheticReference();
 const [first, second] = syntheticProjects;
@@ -25,9 +26,22 @@ describe("parseProjectConfigJson", () => {
   it("存成 JSON 再匯入會得到相同的設定（含 schemaVersion）", () => {
     for (const project of syntheticProjects) {
       const text = JSON.stringify(project);
-      expect(JSON.parse(text)).toHaveProperty("schemaVersion", 1);
+      expect(JSON.parse(text)).toHaveProperty("schemaVersion", 2);
       expect(parseProjectConfigJson(text, reference)).toEqual(project);
     }
+  });
+
+  it("v1 的 JSON 匯入後遷移成 v2（沒有手動覆寫、用預設容許範圍設定）", () => {
+    const imported = parseProjectConfigJson(JSON.stringify(toV1Json(first)), reference);
+    expect(imported).toEqual(first);
+    expect(imported.cellOverrides).toEqual([]);
+    expect(imported.toleranceProfileId).toBeNull();
+  });
+
+  it("手動覆寫引用參考資料沒有的 Function", () => {
+    const overrides = [{ stage: "A", function: "Ghost", man: 1, days: 1, reason: "" }];
+    const issues = issuesOf(() => parseProjectConfigJson(withChange(first, { cellOverrides: overrides }), reference));
+    expect(issues).toEqual([expect.objectContaining({ cell: "$.cellOverrides[0].function" })]);
   });
 
   it("不是合法 JSON", () => {
@@ -36,8 +50,8 @@ describe("parseProjectConfigJson", () => {
     expect(issue?.message).toContain("JSON");
   });
 
-  it("schemaVersion 不是 1", () => {
-    const issues = issuesOf(() => parseProjectConfigJson(withChange(first, { schemaVersion: 2 }), reference));
+  it("schemaVersion 不是 1 或 2", () => {
+    const issues = issuesOf(() => parseProjectConfigJson(withChange(first, { schemaVersion: 3 }), reference));
     expect(issues.map((issue) => issue.cell)).toContain("$.schemaVersion");
   });
 

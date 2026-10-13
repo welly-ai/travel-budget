@@ -1,4 +1,12 @@
-import { type FunctionName, functionNameSchema, type ManualAdjustment, type ProjectConfig, type Stage } from "@/domain";
+import {
+  type CellOverride,
+  type FunctionName,
+  functionNameSchema,
+  type ManualAdjustment,
+  type ProjectConfig,
+  type ProjectConfigV2,
+  type Stage,
+} from "@/domain";
 
 const GATES_OFF: ProjectConfig["gates"] = {
   adsp: false,
@@ -12,10 +20,10 @@ const GATES_OFF: ProjectConfig["gates"] = {
   gpu: false,
 };
 
-/** 合成專案設定：Phase 2 / Class 4、所有開關關閉、沒有 build 日期與例外調整。 */
-export function makeConfig(overrides: Partial<ProjectConfig> = {}): ProjectConfig {
+/** 合成專案設定：Phase 2 / Class 4、所有開關關閉、沒有 build 日期、例外調整與手動覆寫。 */
+export function makeConfig(overrides: Partial<ProjectConfigV2> = {}): ProjectConfigV2 {
   return {
-    schemaVersion: 1,
+    schemaVersion: 2,
     deptCode: "DEPT-X",
     projectCode: "TST01",
     projectName: "Test Project",
@@ -28,6 +36,8 @@ export function makeConfig(overrides: Partial<ProjectConfig> = {}): ProjectConfi
     includeTld: false,
     buildDates: {},
     manualAdjustments: [],
+    cellOverrides: [],
+    toleranceProfileId: null,
     ...overrides,
   };
 }
@@ -42,4 +52,14 @@ export function fn(name: string): FunctionName {
 
 export function adjust(stage: Stage, name: string, man: number, days: number, remark = ""): ManualAdjustment {
   return { stage, function: fn(name), man, days, remark };
+}
+
+export function override(stage: Stage, name: string, man: number, days: number, reason = ""): CellOverride {
+  return { stage, function: fn(name), man, days, reason };
+}
+
+/** 把目前版本的設定改寫成 v1 的 JSON 形狀（拿掉 v2 才有的欄位），用來測遷移。 */
+export function toV1Json(config: ProjectConfigV2): Record<string, unknown> {
+  const v2Only = new Set<string>(["cellOverrides", "toleranceProfileId"]);
+  return { ...Object.fromEntries(Object.entries(config).filter(([key]) => !v2Only.has(key))), schemaVersion: 1 };
 }

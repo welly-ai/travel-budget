@@ -1,4 +1,4 @@
-import { type ProjectConfig, projectConfigSchema } from "@/domain";
+import { type ProjectConfigV2, projectConfigSchema } from "@/domain";
 
 /**
  * 合成專案（可提交）：與 buildSyntheticReference() 搭配，名稱與日期全部虛構。
@@ -15,9 +15,9 @@ const ALL_OFF = {
   thm: false,
   secondPcb: false,
   gpu: false,
-} satisfies ProjectConfig["gates"];
+} satisfies ProjectConfigV2["gates"];
 
-export const syntheticProjects: ProjectConfig[] = [
+export const syntheticProjects: ProjectConfigV2[] = [
   projectConfigSchema.parse({
     schemaVersion: 1,
     deptCode: "SYN-DEPT",

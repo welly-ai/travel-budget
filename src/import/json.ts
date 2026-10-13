@@ -1,4 +1,4 @@
-import { type ProjectConfig, projectConfigSchema, type ReferenceData, validateProjectAgainstReference } from "@/domain";
+import { type ProjectConfigV2, projectConfigSchema, type ReferenceData, validateProjectAgainstReference } from "@/domain";
 import { ImportError, type ImportIssue } from "./issues";
 
 const JSON_SHEET = "JSON";
@@ -13,7 +13,7 @@ function parseJson(text: string): { ok: true; value: unknown } | { ok: false; is
   }
 }
 
-function validateOne(value: unknown, reference: ReferenceData, prefix: string): { config?: ProjectConfig; issues: ImportIssue[] } {
+function validateOne(value: unknown, reference: ReferenceData, prefix: string): { config?: ProjectConfigV2; issues: ImportIssue[] } {
   const parsed = projectConfigSchema.safeParse(value);
   if (!parsed.success) {
     return {
@@ -33,7 +33,7 @@ function validateOne(value: unknown, reference: ReferenceData, prefix: string): 
 }
 
 /** 從 JSON 文字匯入單一專案設定；任何問題都丟 ImportError，指出 JSON 路徑。 */
-export function parseProjectConfigJson(text: string, reference: ReferenceData): ProjectConfig {
+export function parseProjectConfigJson(text: string, reference: ReferenceData): ProjectConfigV2 {
   const json = parseJson(text);
   if (!json.ok) throw new ImportError([json.issue]);
   const { config, issues } = validateOne(json.value, reference, "$");
@@ -42,13 +42,13 @@ export function parseProjectConfigJson(text: string, reference: ReferenceData): 
 }
 
 /** 從 JSON 文字匯入專案設定陣列；全部通過才回傳。 */
-export function parseProjectConfigListJson(text: string, reference: ReferenceData): ProjectConfig[] {
+export function parseProjectConfigListJson(text: string, reference: ReferenceData): ProjectConfigV2[] {
   const json = parseJson(text);
   if (!json.ok) throw new ImportError([json.issue]);
   if (!Array.isArray(json.value)) {
     throw new ImportError([{ sheet: JSON_SHEET, cell: "$", message: "預期是專案設定陣列" }]);
   }
-  const configs: ProjectConfig[] = [];
+  const configs: ProjectConfigV2[] = [];
   const issues: ImportIssue[] = [];
   json.value.forEach((item: unknown, index) => {
     const result = validateOne(item, reference, `$[${index}]`);

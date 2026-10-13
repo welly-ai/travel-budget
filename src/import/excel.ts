@@ -14,7 +14,7 @@ import {
   type ManualAdjustment,
   phaseSchema,
   PROJECT_CONFIG_SCHEMA_VERSION,
-  type ProjectConfig,
+  type ProjectConfigV2,
   projectClassSchema,
   projectConfigSchema,
   type ReferenceData,
@@ -40,7 +40,7 @@ import { addressOf, dateSchema, flagSchema, numeric, optionalTextSchema, SheetRe
 export interface ImportedWorkbook {
   reference: ReferenceData;
   /** 依 Input 欄位順序（P01..P15）排列，只含有填 Project Code 的專案。 */
-  projects: ProjectConfig[];
+  projects: ProjectConfigV2[];
 }
 
 export async function readWorkbookFile(path: string): Promise<ExcelJS.Workbook> {
@@ -242,7 +242,7 @@ function readGuidance(sheet: SheetReader, functions: readonly FunctionDef[], lay
 // ---------------------------------------------------------------------------
 
 interface ProjectDraft {
-  config: ProjectConfig;
+  config: ProjectConfigV2;
   /** Project Code 所在儲存格，用來回報例外調整找不到專案的位置。 */
   codeCell: string;
 }
@@ -352,6 +352,8 @@ function readProjects(sheet: SheetReader, layout: ExcelLayout): ProjectDraft[] {
       includeTld,
       buildDates,
       manualAdjustments: [],
+      cellOverrides: [],
+      toleranceProfileId: null,
     });
     if (parsed.success) {
       drafts.push({ config: parsed.data, codeCell });
@@ -370,7 +372,7 @@ function attachManualAdjustments(
   drafts: readonly ProjectDraft[],
   sheet: SheetReader | undefined,
   reference: ReferenceData,
-): ProjectConfig[] {
+): ProjectConfigV2[] {
   const adjustmentsByCode = new Map<string, ManualAdjustment[]>(drafts.map((draft) => [draft.config.projectCode, []]));
   if (sheet !== undefined) {
     const header = findRow(sheet, 1, (text) => text === "Project Code");

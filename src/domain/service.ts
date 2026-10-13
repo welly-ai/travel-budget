@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { projectConfigSchema } from "./project";
+import { projectConfigSchema, projectConfigV2ObjectSchema } from "./project";
 import { gateKeySchema, isoDateSchema, phaseSchema, projectClassSchema, stageSchema } from "./primitives";
 
 /** 專案狀態：草稿或生效。把草稿設為生效只能由人在網頁上做（AGENTS.md 紅線 8）。 */
@@ -8,7 +8,7 @@ export const projectStatusSchema = z.enum(PROJECT_STATUSES);
 export type ProjectStatus = z.infer<typeof projectStatusSchema>;
 
 /** 專案頁左側可以修改的設定：專案設定的子集（代碼、名稱、LOB 與例外調整另有管道）。 */
-export const projectSettingsSchema = projectConfigSchema.pick({
+export const projectSettingsSchema = projectConfigV2ObjectSchema.pick({
   phase: true,
   projectClass: true,
   gates: true,
