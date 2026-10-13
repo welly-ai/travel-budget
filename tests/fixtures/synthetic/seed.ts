@@ -1,5 +1,5 @@
 import type { Db } from "@/db";
-import { createGuidanceVersion, createProject, createUser } from "@/server/admin";
+import { createGuidanceVersion, createProject, createUser, ensureDefaultToleranceProfile } from "@/server/admin";
 import { buildSyntheticReference } from "./reference";
 import { syntheticProjects } from "./projects";
 
@@ -16,8 +16,9 @@ export interface SeededIds {
   guidanceVersionId: string;
 }
 
-/** 用合成資料建立一個 Guidance 版本、三個示範專案與兩個示範帳號。 */
+/** 用合成資料建立一個 Guidance 版本、三個示範專案、兩個示範帳號與預設容許範圍設定。 */
 export async function seedSynthetic(db: Db, at: Date): Promise<SeededIds> {
+  ensureDefaultToleranceProfile(db, at);
   const userIds: string[] = [];
   for (const user of DEMO_USERS) userIds.push(await createUser(db, user, at));
   const guidanceVersionId = createGuidanceVersion(db, { label: "合成示範 Guidance v1", reference: buildSyntheticReference() }, at);

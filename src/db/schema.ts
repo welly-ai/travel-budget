@@ -117,6 +117,25 @@ export const projectRevisions = sqliteTable(
   (table) => [uniqueIndex("project_revisions_project_version_idx").on(table.projectId, table.version)],
 );
 
+// ---- 容許範圍設定：手動覆寫可偏離有效 Guidance 的百分比上限 ----
+// 預設組的 id 固定為 DEFAULT_TOLERANCE_PROFILE_ID，由 migration 0002 建立；專案的 toleranceProfileId 為 null 時用它。
+
+export const toleranceProfiles = sqliteTable(
+  "tolerance_profiles",
+  {
+    id: text("id").primaryKey(),
+    name: text("name").notNull(),
+    maxIncreasePct: real("max_increase_pct").notNull(),
+    maxDecreasePct: real("max_decrease_pct").notNull(),
+    /** 樂觀鎖：每次修改加 1，更新時要帶讀取時的值。 */
+    version: integer("version").notNull().default(1),
+    updatedBy: text("updated_by").references(() => users.id),
+    updatedAt: integer("updated_at", { mode: "timestamp_ms" }).notNull(),
+    ...timestamps,
+  },
+  (table) => [uniqueIndex("tolerance_profiles_name_idx").on(table.name)],
+);
+
 // ---- 留言（schema 先建好，介面留給後續待辦）----
 
 export const comments = sqliteTable(

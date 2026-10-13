@@ -2,6 +2,7 @@ import { randomUUID } from "node:crypto";
 import { hashPassword } from "better-auth/crypto";
 import { eq } from "drizzle-orm";
 import {
+  DEFAULT_TOLERANCE_PROFILE_ID,
   projectConfigSchema,
   projectSnapshotSchema,
   referenceDataSchema,
@@ -91,13 +92,22 @@ export function createProject(
   return id;
 }
 
-/** 清空所有資料（保留表結構）。順序依外鍵相依。 */
+/** 確保預設容許範圍設定（±30%）存在；已存在就不動（冪等）。migration 0002 也會建立它。 */
+export function ensureDefaultToleranceProfile(db: Db, at: Date): void {
+  db.insert(schema.toleranceProfiles)
+    .values({ id: DEFAULT_TOLERANCE_PROFILE_ID, name: "預設（±30%）", maxIncreasePct: 30, maxDecreasePct: 30, version: 1, updatedBy: null, updatedAt: at, createdAt: at })
+    .onConflictDoNothing()
+    .run();
+}
+
+/** 清空所有資料（保留表結構）。順序依外鍵相依。容許範圍設定也會清掉，seed 會重建預設組。 */
 export function clearAllData(db: Db): void {
   db.transaction((tx) => {
     tx.delete(schema.comments).run();
     tx.delete(schema.projectRevisions).run();
     tx.delete(schema.projects).run();
     tx.delete(schema.guidanceVersions).run();
+    tx.delete(schema.toleranceProfiles).run();
     tx.delete(schema.sessions).run();
     tx.delete(schema.accounts).run();
     tx.delete(schema.verifications).run();

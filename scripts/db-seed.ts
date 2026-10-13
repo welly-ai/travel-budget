@@ -1,7 +1,8 @@
 // 用合成資料建立示範資料庫：node 經 tsx 執行，pnpm db:seed。
 // 加 --reset 會清空現有資料再建立（會先印出要清掉哪個檔案）。
+// 冪等：重複執行不會重複建立；預設容許範圍設定不論有沒有其他資料都會補上。
 import { databasePath, migrateDb, openDb, schema } from "../src/db";
-import { clearAllData } from "../src/server/admin";
+import { clearAllData, ensureDefaultToleranceProfile } from "../src/server/admin";
 import { DEMO_PROJECT_CODES, DEMO_USERS, seedSynthetic } from "../tests/fixtures/synthetic/seed";
 
 async function main(): Promise<void> {
@@ -12,6 +13,8 @@ async function main(): Promise<void> {
 
   const existing = db.select().from(schema.projects).all().length + db.select().from(schema.users).all().length;
   if (existing > 0 && !reset) {
+    ensureDefaultToleranceProfile(db, new Date());
+    console.log(`已確認預設容許範圍設定存在（${path}）`);
     console.log(`資料庫已有資料（${path}），沒有動它。要清掉重建請執行：pnpm db:seed -- --reset`);
     return;
   }
