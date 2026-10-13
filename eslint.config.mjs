@@ -53,7 +53,7 @@ const eslintConfig = defineConfig([
     files: ["**/*.mjs", "**/*.js"],
     extends: [tseslint.configs.disableTypeChecked],
   },
-  globalIgnores([".next/**", ".next-e2e/**", "out/**", "build/**", "next-env.d.ts", "local-data/**", "drizzle/**", ".agents/**", ".claude/skills/**"]),
+  globalIgnores([".next/**", ".next-e2e/**", "out/**", "build/**", "next-env.d.ts", "local-data/**", "drizzle/**", ".agents/**", ".claude/skills/**", ".claude/worktrees/**"]),
 ]);
 
 export default eslintConfig;

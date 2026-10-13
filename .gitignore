@@ -64,3 +64,6 @@ next-env.d.ts
 
 # e2e 測試用的 Next.js 輸出
 /.next-e2e/
+
+# agent 的暫時 git worktree（Claude Code isolation: worktree）
+/.claude/worktrees/
