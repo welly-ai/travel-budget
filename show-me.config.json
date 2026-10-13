@@ -103,10 +103,10 @@
       ]
     },
     {
-      "id": "project-conflict",
-      "title": "版本衝突訊息",
-      "description": "另一人先存檔後，再存檔會看到「已被 ○○ 於 ○○ 修改」與「重新載入」。這張需要先執行 pnpm exec tsx scripts/demo-conflict.ts（見 HANDOFF.md）。",
-      "route": "/projects/SYN02",
+      "id": "project-override",
+      "title": "格子手動覆寫與警告",
+      "description": "點 Core-1 × A 格子，把人次改成 3：比 Guidance 多 +200%，超過上限 30%，理由欄變必填。",
+      "route": "/projects/SYN03",
       "viewport": {
         "width": 1280,
         "height": 900
@@ -132,23 +132,46 @@
         },
         {
           "action": "click",
-          "selector": "input[name=\"phase\"]"
+          "selector": "td[data-testid=\"cell-Core-1-A\"] button"
+        },
+        {
+          "action": "fill",
+          "selector": "[role=\"dialog\"] input[type=\"number\"]",
+          "value": "3"
         },
         {
           "action": "wait",
-          "ms": 5000
+          "selector": "[data-testid=\"override-warning\"]"
+        }
+      ]
+    },
+    {
+      "id": "settings-tolerance",
+      "title": "容許範圍設定",
+      "description": "列出各組上下限，可新增一組或就地編輯；不同廠區或專案可用不同組。",
+      "route": "/settings/tolerance",
+      "viewport": {
+        "width": 1280,
+        "height": 800
+      },
+      "steps": [
+        {
+          "action": "fill",
+          "selector": "input[name=\"email\"]",
+          "value": "demo@example.com"
         },
         {
-          "action": "wait",
-          "ms": 5000
+          "action": "fill",
+          "selector": "input[name=\"password\"]",
+          "value": "demo-password-123"
         },
         {
           "action": "click",
-          "selector": "button:has-text(\"儲存\")"
+          "selector": "button[type=\"submit\"]"
         },
         {
           "action": "wait",
-          "selector": "[data-testid=\"notice-conflict\"]"
+          "selector": "h1, h2"
         }
       ]
     }
