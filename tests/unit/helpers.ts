@@ -4,6 +4,7 @@ import {
   functionNameSchema,
   type ManualAdjustment,
   type ProjectConfig,
+  type ProjectConfigV1,
   type ProjectConfigV2,
   type Stage,
 } from "@/domain";
@@ -58,8 +59,21 @@ export function override(stage: Stage, name: string, man: number, days: number, 
   return { stage, function: fn(name), man, days, reason };
 }
 
-/** 把目前版本的設定改寫成 v1 的 JSON 形狀（拿掉 v2 才有的欄位），用來測遷移。 */
-export function toV1Json(config: ProjectConfigV2): Record<string, unknown> {
-  const v2Only = new Set<string>(["cellOverrides", "toleranceProfileId"]);
-  return { ...Object.fromEntries(Object.entries(config).filter(([key]) => !v2Only.has(key))), schemaVersion: 1 };
+/** 把目前版本的設定改寫成 v1（拿掉 v2 才有的欄位），用來測遷移。 */
+export function toV1Json(config: ProjectConfigV2): ProjectConfigV1 {
+  return {
+    schemaVersion: 1,
+    deptCode: config.deptCode,
+    projectCode: config.projectCode,
+    projectName: config.projectName,
+    lob: config.lob,
+    gen: config.gen,
+    phase: config.phase,
+    projectClass: config.projectClass,
+    gates: config.gates,
+    includePreA: config.includePreA,
+    includeTld: config.includeTld,
+    buildDates: config.buildDates,
+    manualAdjustments: config.manualAdjustments,
+  };
 }

@@ -1,5 +1,6 @@
 import { z } from "zod";
-import { projectConfigSchema, projectConfigV2ObjectSchema } from "./project";
+import { cellOverrideSchema, projectConfigSchema, projectConfigV2ObjectSchema } from "./project";
+import { toleranceLimitsSchema } from "./tolerance";
 import { gateKeySchema, isoDateSchema, phaseSchema, projectClassSchema, stageSchema } from "./primitives";
 
 /** 專案狀態：草稿或生效。把草稿設為生效只能由人在網頁上做（AGENTS.md 紅線 8）。 */
@@ -80,14 +81,27 @@ export type RevisionSummary = z.infer<typeof revisionSummarySchema>;
 
 /** 服務層的輸入 schema：頁面、API、MCP 共用。 */
 export const getProjectInputSchema = z.object({ projectCode: projectCodeSchema });
+/** 容許範圍設定的 id；null 代表用預設組。 */
+export const toleranceProfileIdSchema = z.string().min(1).nullable();
+
 export const calculateProjectInputSchema = z.object({
   projectCode: projectCodeSchema,
   overrides: settingsOverrideSchema.optional(),
+  /** 草稿的手動覆寫（整份取代已存的）；省略時用已存的。 */
+  cellOverrides: z.array(cellOverrideSchema).optional(),
+});
+/** 覆寫檢查：同試算，另外可以換一組容許範圍設定（省略時用專案已存的）。 */
+export const reviewOverridesInputSchema = calculateProjectInputSchema.extend({
+  toleranceProfileId: toleranceProfileIdSchema.optional(),
 });
 export const updateProjectInputSchema = z.object({
   projectCode: projectCodeSchema,
   expectedVersion: z.number().int().min(1),
   settings: projectSettingsSchema,
+  /** 手動覆寫（整份取代）；省略時保留已存的。 */
+  cellOverrides: z.array(cellOverrideSchema).optional(),
+  /** 省略時保留已存的；null 代表用預設組。 */
+  toleranceProfileId: toleranceProfileIdSchema.optional(),
   actorId: z.string().min(1),
 });
 export const listRevisionsInputSchema = z.object({
@@ -95,3 +109,13 @@ export const listRevisionsInputSchema = z.object({
   limit: z.number().int().min(1).max(100).default(5),
 });
 export const exportProjectInputSchema = z.object({ projectCode: projectCodeSchema });
+
+export const getToleranceProfileInputSchema = z.object({ profileId: z.string().min(1) });
+export const createToleranceProfileInputSchema = toleranceLimitsSchema.extend({
+  name: z.string().trim().min(1).max(100),
+  actorId: z.string().min(1),
+});
+export const updateToleranceProfileInputSchema = createToleranceProfileInputSchema.extend({
+  profileId: z.string().min(1),
+  expectedVersion: z.number().int().min(1),
+});

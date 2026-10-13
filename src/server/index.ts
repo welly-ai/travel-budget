@@ -4,8 +4,8 @@ import { createServices, type Services } from "./projects";
 
 export { getAuth } from "./auth";
 export { defaultExportLayout, type ServerContext } from "./context";
-export { ConflictError, NotFoundError } from "./errors";
-export { applyOverrides, createServices, type CalculatedProject, type ExportedWorkbook, type Services } from "./projects";
+export { ConflictError, DuplicateNameError, NotFoundError, OverrideReasonRequiredError } from "./errors";
+export { applyOverrides, createServices, type CalculatedProject, type ExportedWorkbook, type OverrideReview, type Services } from "./projects";
 
 declare global {
   var __travelBudgetServices: Services | undefined;
@@ -20,4 +20,4 @@ export function services(): Services {
   });
   return globalThis.__travelBudgetServices;
 }
-export { clearAllData, createGuidanceVersion, createProject, createUser } from "./admin";
+export { clearAllData, createGuidanceVersion, createProject, createUser, ensureDefaultToleranceProfile } from "./admin";
