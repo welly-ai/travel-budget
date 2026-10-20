@@ -22,7 +22,7 @@ const output = z.object({ hookSpecificOutput: z.object({ permissionDecision: z.s
 const dirs: string[] = [];
 afterAll(() => {
   for (const d of dirs) rmSync(d, { recursive: true, force: true });
-});
+}, 60_000);
 
 /** 暫時專案：複製 hooks 腳本（PROJECT_ROOT 由腳本位置推得），HEAD 指向 main。 */
 function makeProject(branch = "main") {
