@@ -20,7 +20,7 @@
           {
             "type": "command",
             "command": "node scripts/hooks/codex-stop.mjs",
-            "timeout": 300,
+            "timeout": 600,
             "statusMessage": "Running project quality gate"
           }
         ]
